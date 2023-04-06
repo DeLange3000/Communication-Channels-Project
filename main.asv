@@ -1,0 +1,38 @@
+close all;
+clear;
+clc;
+
+%% variables
+
+Fc = 27e9; %Hz
+EIRP = 1; %W Gtx*Ptx
+h_bs = 2; %m
+h_ue = 2; %m
+t_SNR = 5; %dB
+r_noise_figure = 15; %dB
+BW = 200e6; %Hz
+
+%% draw image
+
+[lines, x, y] = drawLines();
+
+%% receiver and transmitter
+
+rx_x = 0.5; %initial position
+rx_y = 0.5;
+
+tx_x = 20;
+tx_y = 300;
+
+%% raytracing
+
+% step 1: move rx_x over possible squares
+% step 2: check for LOS (includes ground reflection)
+% step 3: raytracing
+
+    %% step 1
+
+    
+     
+
+
