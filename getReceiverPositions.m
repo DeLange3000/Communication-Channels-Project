@@ -26,7 +26,7 @@ end
 
 %removing points closer then minimal distance to base station
 i = 1;
-while i < length(all_rx_xy(1,:))
+while i <= length(all_rx_xy(1,:))
     if(sqrt((all_rx_xy(1,i) - tx_x)^2 + (all_rx_xy(2,i)-tx_y)^2) < d_basestation)
         all_rx_xy(:,i) = [];
     else
