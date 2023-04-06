@@ -51,36 +51,11 @@ plot(all_rx_xy(1, :), all_rx_xy(2, :), '.');
 no_LOS = [];
 for i = 1:length(all_rx_xy(1,:))
     %turn path from rx to tx in line
-    A = [-(all_rx_xy(2,i) - tx_y)/(all_rx_xy(1,i) - tx_x) 1; 0 0];
-    B = [tx_y + A(1,1)*tx_x; 0];
 
-    for j = 1:length(x(1,:))
-        %turn walls into lines
-        A(2,:) = [-(y(2,j) - y(1,j))/(x(2,j) - x(1,j)) 1];
-        B(2) = [y(1,j) + A(2,1)*x(1,j)];
-        %calculate intersection of LOS line with walls
-        intersec_y = (B(2) - (A(2,1)*B(1))/A(1,1))/(A(2,2) - (A(2,1)*A(1,2))/A(1,1));
-        intersec_x = (B(1) - A(1,2)*intersec_y)/A(1,1);
+    intersec = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x, tx_y, 0);
 
-        %check if intersection point falls within wall and LOS line limits
-        %(they have finite length)
-        if(intersec_x > max([tx_x, all_rx_xy(1,i)]) || intersec_x < min([tx_x, all_rx_xy(1,i)]))
-            intersec_x = NaN;
-        elseif(intersec_x > max([x(1,j), x(2,j)]) || intersec_x < min([x(1,j), x(2,j)]))
-            intersec_x = NaN;
-        end
-        if (intersec_y > max([tx_y, all_rx_xy(2,i)]) || intersec_y < min([tx_y, all_rx_xy(2,i)]))
-            intersec_y = NaN;
-        elseif(intersec_y > max([y(1,j), y(2,j)]) || intersec_y < min([y(1,j), y(2,j)]))
-            intersec_y = NaN;
-        end
-
-        % add non LOS points to an array
-        if (not(isnan(intersec_x) || isnan(intersec_y)))
-            no_LOS = [no_LOS [all_rx_xy(:,i); i]];
-            break
-           
-        end
+    if (intersec == 1)
+        no_LOS = [no_LOS [all_rx_xy(:,i); i]];
     end
 end
 
@@ -128,9 +103,53 @@ for i = 1:length(all_rx_xy(1,:))
     end
 
     % one reflection
-    % how: mirror transmitter to left and right and bottom. if there is
-    % intersection with wall -> calc reflection
+    % only code for this specific geometry to reduce complexity
+    % how: mirror transmitter to left and right and bottom and for every street. Draw line from BS to UE. if there is
+    % only one intersection with a wall -> calc reflection
 
+    % mirror BS to left
+
+    tx_y_mirror = tx_y;
+    tx_x_mirror = tx_x + 40;
+    [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror, tx_y_mirror, 1);
+    
+
+    %visualize intersections
+    if (amount_of_intersec == 1)
+            if(intersections(1) == 40)
+            figure
+            hold on
+            lines = line(x, y, 'Color', 'black');
+            axis('equal')
+            xlabel('width [m]')
+            ylabel('height [m]')
+            title('Positions where there is no line of sight')
+            plot([tx_x intersections(1) all_rx_xy(1,i)], [tx_y intersections(2), all_rx_xy(2,i)]);
+            end
+    end
+
+
+
+
+    % mirror BS to right
+
+
+    % mirror BS to bottom
+
+
+    % mirror BS to Rue du grand hospice
+
+
+    % mirror BS to Rue du rouleau
+
+
+    % mirror BS to Rue du Peuplier
+
+
+
+    %check if wall is horizontal or vertical to get theta (same for 2
+    %reflections?)
+    
 
 
 
