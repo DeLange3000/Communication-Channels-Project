@@ -2,6 +2,17 @@ close all;
 clear;
 clc;
 
+%% enables
+
+enable_LOS = 0;
+enable_ground_reflections = 0;
+enable_diffraction = 0;
+enable_one_reflection = 1;
+enable_left_wall_reflection = 0;
+enable_right_wall_reflection = 0;
+enable_bottom_wall_reflection = 1;
+
+
 %% variables
 
 Fc = 27e9; %Hz
@@ -86,20 +97,26 @@ for i = 1:length(all_rx_xy(1,:))
     Voc = 0;
     %check if there is a LOS
     if(isempty(find(no_LOS(3,:) == i))) %true is there is LOS
-        r_los = sqrt((all_rx_xy(1,i) - tx_x)^2 + (all_rx_xy(2,i) - tx_y)^2); %since same height
-        E_los = sqrt(60*EIRP)/r_los*exp(-1i*2*pi*Fc/c*r_los);
-        Voc = Voc + E_los*effective_h;
+        if(enable_LOS == 1)
+            r_los = sqrt((all_rx_xy(1,i) - tx_x)^2 + (all_rx_xy(2,i) - tx_y)^2); %since same height
+            E_los = sqrt(60*EIRP)/r_los*exp(-1i*2*pi*Fc/c*r_los);
+            Voc = Voc + E_los*effective_h;
+        end
 
         %if LOS then also ground reflection
-        r_gr = sqrt(r_los^2 + (2*h_bs)^2);
-        theta = acos(h_bs/(r_gr/2));
-        effective_h_gr = -(c/Fc)/pi*cos(pi/2*cos(theta))/sin(theta)^2;
-        lamba_parallel = (cos(theta) - sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2))/(cos(theta) + sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2));
-        E_gr = lamba_parallel*sqrt(60*EIRP)/r_gr*exp(-1i*2*pi*Fc/c*r_gr);
-        Voc = Voc + E_gr*effective_h_gr;
+        if(enable_ground_reflections == 1)
+            r_gr = sqrt(r_los^2 + (2*h_bs)^2);
+            theta = acos(h_bs/(r_gr/2));
+            effective_h_gr = -(c/Fc)/pi*cos(pi/2*cos(theta))/sin(theta)^2;
+            lamba_parallel = (cos(theta) - sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2))/(cos(theta) + sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2));
+            E_gr = lamba_parallel*sqrt(60*EIRP)/r_gr*exp(-1i*2*pi*Fc/c*r_gr);
+            Voc = Voc + E_gr*effective_h_gr;
+        end
     else
-
         %diffraction!!
+        if(enable_diffraction == 1)
+
+        end
     end
 
     % one reflection
@@ -107,44 +124,98 @@ for i = 1:length(all_rx_xy(1,:))
     % how: mirror transmitter to left and right and bottom and for every street. Draw line from BS to UE. if there is
     % only one intersection with a wall -> calc reflection
 
-    % mirror BS to left
-
-    tx_y_mirror = tx_y;
-    tx_x_mirror = tx_x + 40;
-    [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror, tx_y_mirror, 1);
+    if(enable_one_reflection == 1)
+        if(enable_left_wall_reflection == 1)
+            % mirror BS to left
+            tx_y_mirror = tx_y;
+            tx_x_mirror = -tx_x;
+            [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror, tx_y_mirror, 1);
     
-
-    %visualize intersections
-    if (amount_of_intersec == 1)
-            if(intersections(1) == 40)
-            figure
-            hold on
-            lines = line(x, y, 'Color', 'black');
-            axis('equal')
-            xlabel('width [m]')
-            ylabel('height [m]')
-            title('Positions where there is no line of sight')
-            plot([tx_x intersections(1) all_rx_xy(1,i)], [tx_y intersections(2), all_rx_xy(2,i)]);
+            %remove any reflections from the left street
+            j = 1;
+            while j <= amount_of_intersec
+                if(intersections(1,j) < 0)
+                    intersections(:,j) = [];
+                    amount_of_intersec = amount_of_intersec - 1;
+                else
+                    j = j + 1;
+                end
             end
+            if(amount_of_intersec == 1)
+    
+    %             figure
+    %             hold on
+    %             lines = line(x, y, 'Color', 'black');
+    %             axis('equal')
+    %             xlabel('width [m]')
+    %             ylabel('height [m]')
+    %             title('Positions where there is no line of sight')
+    %             plot([tx_x intersections(1) all_rx_xy(1,i)], [tx_y intersections(2), all_rx_xy(2,i)]);
+    
+                r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror)^2 + (all_rx_xy(2,i) - tx_y_mirror)^2);
+                theta = atan((tx_y_mirror - intersections(2))/(intersections(1) - tx_x_mirror));
+                lamba_ortho = (cos(theta) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta)^2))/(cos(theta) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta)^2));
+                E_refl = lamba_ortho*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                Voc = Voc + E_refl*effective_h;
+            end
+        end
+    
+        if(enable_right_wall_reflection == 1)    
+
+            % mirror BS to right
+            tx_y_mirror = tx_y;
+            tx_x_mirror = tx_x + 40;
+            [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror, tx_y_mirror, 1);
+            %exclude intersections with vertical right streets
+            j = 1;
+            while j <= amount_of_intersec
+                if(intersections(1,j) > 40)
+                    intersections(:,j) = [];
+                    amount_of_intersec = amount_of_intersec - 1;
+                else
+                    j = j + 1;
+                end
+            end
+    
+            if(amount_of_intersec == 1)
+                r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror)^2 + (all_rx_xy(2,i) - tx_y_mirror)^2);
+                theta = atan((tx_y_mirror - intersections(2))/(tx_x_mirror - intersections(1)));
+                lamba_ortho = (cos(theta) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta)^2))/(cos(theta) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta)^2));
+                E_refl = lamba_ortho*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                Voc = Voc + E_refl*effective_h;
+            end
+        end
+    
+        if(enable_bottom_wall_reflection == 1)
+        % mirror BS to bottom
+    
+            tx_y_mirror = -tx_y;
+            tx_x_mirror = tx_x;
+            [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror, tx_y_mirror, 1);
+    
+            if(amount_of_intersec == 1)
+                %determine if reflection can reach point (streets will
+                %otherwise receive signal while they cannot)
+
+                [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
+                if(a <= 1)
+                    r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror)^2 + (all_rx_xy(2,i) - tx_y_mirror)^2);
+                    theta = atan(abs(abs(tx_y_mirror) - abs(intersections(2)))/abs(tx_x_mirror - abs(intersections(1))));
+                    lamba_ortho = (cos(theta) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta)^2))/(cos(theta) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta)^2));
+                    E_refl = lamba_ortho*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                    Voc = Voc + E_refl*effective_h;
+                end
+            end
+        end
+    
+        % mirror BS to Rue du grand hospice
+    
+    
+        % mirror BS to Rue du rouleau
+    
+    
+        % mirror BS to Rue du Peuplier
     end
-
-
-
-
-    % mirror BS to right
-
-
-    % mirror BS to bottom
-
-
-    % mirror BS to Rue du grand hospice
-
-
-    % mirror BS to Rue du rouleau
-
-
-    % mirror BS to Rue du Peuplier
-
 
 
     %check if wall is horizontal or vertical to get theta (same for 2
