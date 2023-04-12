@@ -4,17 +4,16 @@ clc;
 
 %% enables
 
-enable_LOS = 0;
+enable_LOS = 1;
 enable_ground_reflections = 0;
 enable_diffraction = 0;
-enable_one_reflection = 0;
+enable_one_reflection = 1;
 enable_left_wall_reflection = 0;
 enable_right_wall_reflection = 0;
 enable_bottom_wall_reflection = 0;
 eanble_rue_du_grand_hospice = 0;
 enable_rue_du_rouleau = 0;
-enable_rue_du_peuplier = 0;
-enable_double_reflections = 1;
+enable_rue_du_peuplier = 1;
 
 
 %% variables
@@ -260,10 +259,10 @@ for i = 1:length(all_rx_xy(1,:))
             tx_x_mirror = tx_x;
             tx_y_mirror = tx_y - 460;
             [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror, tx_y_mirror, 1);
-            if(amount_of_intersec == 3 && intersections(2,1) == 0 && intersections(1,2) == 40 && intersections(2,3) == 70)
+            if(amount_of_intersec == 2 && intersections(1,1) == 40 && intersections(2,2) == 70)
                 %determine if reflection can reach point (streets will
                 %otherwise receive signal while they cannot)
-                [a, b] = intersectionCalculator(x, y, intersections(:,3), tx_x, tx_y, 1);
+                [a, b] = intersectionCalculator(x, y, intersections(:,2), tx_x, tx_y, 1);
                 if(a <= 1)
                     r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror)^2 + (all_rx_xy(2,i) - tx_y_mirror)^2);
                     theta = atan(abs(abs(tx_y_mirror) - abs(intersections(2)))/abs(tx_x_mirror - abs(intersections(1))));
@@ -281,8 +280,6 @@ for i = 1:length(all_rx_xy(1,:))
 
     %check if wall is horizontal or vertical to get theta (same for 2
     %reflections?)
-
-
     
 
 
