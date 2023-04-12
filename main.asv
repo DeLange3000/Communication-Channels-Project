@@ -4,16 +4,25 @@ clc;
 
 %% enables
 
-enable_LOS = 1;
+enable_LOS = 0;
 enable_ground_reflections = 0;
 enable_diffraction = 0;
-enable_one_reflection = 1;
+enable_one_reflection = 0;
 enable_left_wall_reflection = 0;
 enable_right_wall_reflection = 0;
 enable_bottom_wall_reflection = 0;
 eanble_rue_du_grand_hospice = 0;
 enable_rue_du_rouleau = 0;
-enable_rue_du_peuplier = 1;
+enable_rue_du_peuplier = 0;
+enable_double_reflections = 1;
+enable_left_and_right_wall = 0;
+enable_left_and_bottom_wall = 0;
+enable_left_and_streets = 0;
+enable_right_and_left_wall = 0;
+enable_right_and_bottom_wall = 0;
+enable_bottom_and_left_wall = 0;
+enable_bottom_and_right_wall = 1;
+enable_bottom_and_streets = 0;
 
 
 %% variables
@@ -259,10 +268,10 @@ for i = 1:length(all_rx_xy(1,:))
             tx_x_mirror = tx_x;
             tx_y_mirror = tx_y - 460;
             [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror, tx_y_mirror, 1);
-            if(amount_of_intersec == 2 && intersections(1,1) == 40 && intersections(2,2) == 70)
+            if(amount_of_intersec == 3 && intersections(2,1) == 0 && intersections(1,2) == 40 && intersections(2,3) == 70) %also intersects with bottom wall
                 %determine if reflection can reach point (streets will
                 %otherwise receive signal while they cannot)
-                [a, b] = intersectionCalculator(x, y, intersections(:,2), tx_x, tx_y, 1);
+                [a, b] = intersectionCalculator(x, y, intersections(:,3), tx_x, tx_y, 1);
                 if(a <= 1)
                     r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror)^2 + (all_rx_xy(2,i) - tx_y_mirror)^2);
                     theta = atan(abs(abs(tx_y_mirror) - abs(intersections(2)))/abs(tx_x_mirror - abs(intersections(1))));
@@ -274,12 +283,223 @@ for i = 1:length(all_rx_xy(1,:))
             end
 
         end
-
     end
+
+
+        % double reflections
+        if(enable_double_reflections == 1)
+
+            %bottom wall + right wall
+            if(enable_left_and_right_wall == 1)
+                tx_x_mirror1 = tx_x - 20;
+                tx_y_mirror1 = tx_y;
+                tx_x_mirror2 = tx_x + 60;
+                tx_y_mirror2 = tx_y;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+                %exclude intersections with vertical right streets
+                j = 1;
+                while j <= amount_of_intersec
+                    if(intersections(1,j) > 40)
+                        intersections(:,j) = [];
+                        amount_of_intersec = amount_of_intersec - 1;
+                    else
+                        j = j + 1;
+                    end
+                end
+        
+                if(amount_of_intersec == 1)
+                    r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                    theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                    theta1 = theta2;
+                    lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                    lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                    E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                    Voc = Voc + E_refl*effective_h;
+                end
+            end
+
+            %left and bottom wall
+            if(enable_left_and_bottom_wall == 1)
+                tx_x_mirror1 = tx_x - 40;
+                tx_y_mirror1 = tx_y;
+                tx_x_mirror2 = tx_x_mirror1;
+                tx_y_mirror2 = -tx_y_mirror1;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+              
+                if(amount_of_intersec == 1 && intersections(2,1) == 0)
+                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections, tx_x_mirror1, tx_y_mirror1, 1);
+                    [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
+                    if(a <= 1 && isempty(intersections_mirror1(intersections_mirror1 == 10)))
+                        r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta1 = pi/2 - theta2;
+                        lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                        lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                        E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                        Voc = Voc + E_refl*effective_h;
+                    end
+                end
+            end
+
+            if(enable_left_and_streets == 1)
+
+                %rue du grand hospice
+                tx_x_mirror1 = tx_x - 40;
+                tx_y_mirror1 = tx_y;
+                tx_x_mirror2 = tx_x_mirror1;
+                tx_y_mirror2 = tx_y - 60;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+              
+                if(amount_of_intersec == 3 && intersections(1,2) == 40 && intersections(2,3) == 270)
+                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections(:,3), tx_x_mirror1, tx_y_mirror1, 1);
+                    [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
+                    if(a <= 1 && amount_of_intersec <= 2)
+                        r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta1 = pi/2 - theta2;
+                        lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                        lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                        E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                        Voc = Voc + E_refl*effective_h;
+                    end
+                end
+
+                %rue du rouleau
+                tx_x_mirror1 = tx_x - 40;
+                tx_y_mirror1 = tx_y;
+                tx_x_mirror2 = tx_x_mirror1;
+                tx_y_mirror2 = tx_y - 240;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+              
+                if(amount_of_intersec == 3 && intersections(1,2) == 40 && intersections(2,3) == 180)
+                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections(:,3), tx_x_mirror1, tx_y_mirror1, 1);
+                    [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
+                    if(a <= 1 && amount_of_intersec <= 2)
+                        r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta1 = pi/2 - theta2;
+                        lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                        lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                        E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                        Voc = Voc + E_refl*effective_h;
+                    end
+                end
+
+                %rue du peuplier
+                tx_x_mirror1 = tx_x - 40;
+                tx_y_mirror1 = tx_y;
+                tx_x_mirror2 = tx_x_mirror1;
+                tx_y_mirror2 = tx_y - 460;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+              
+                if(amount_of_intersec == 3 && intersections(1,2) == 40 && intersections(2,3) == 70)
+                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections(:,3), tx_x_mirror1, tx_y_mirror1, 1);
+                    [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
+                    if(a <= 1 && amount_of_intersec <= 2)
+                        r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta1 = pi/2 - theta2;
+                        lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                        lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                        E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                        Voc = Voc + E_refl*effective_h;
+                    end
+                end
+            end
+
+            %right wall and left wall
+            if(enable_right_and_left_wall == 1)
+                tx_x_mirror1 = tx_x + 40;
+                tx_y_mirror1 = tx_y;
+                tx_x_mirror2 = tx_x - 60;
+                tx_y_mirror2 = tx_y;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+                %exclude intersections with vertical right streets
+                j = 1;
+                while j <= amount_of_intersec
+                    if(intersections(1,j) > 40 || intersections(1,j) < 0)
+                        intersections(:,j) = [];
+                        amount_of_intersec = amount_of_intersec - 1;
+                    else
+                        j = j + 1;
+                    end
+                end
+        
+                if(amount_of_intersec == 1)
+                    r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                    theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                    theta1 = theta2;
+                    lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                    lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                    E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                    Voc = Voc + E_refl*effective_h;
+                end
+            end
+                
+            % right and bottom wall
+
+            if(enable_right_and_bottom_wall == 1)
+                tx_x_mirror1 = tx_x + 40;
+                tx_y_mirror1 = tx_y;
+                tx_x_mirror2 = tx_x_mirror1;
+                tx_y_mirror2 = -tx_y_mirror1;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+              
+                if(amount_of_intersec == 1 && intersections(2,1) == 0)
+                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections, tx_x_mirror1, tx_y_mirror1, 1);
+                    [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
+                    if(a <= 1 && isempty(intersections_mirror1(intersections_mirror1 == 10)))
+                        r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta1 = pi/2 - theta2;
+                        lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                        lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                        E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                        Voc = Voc + E_refl*effective_h;
+                    end
+                end
+            end
+
+            %bottom wall to left wall
+            if(enable_bottom_and_left_wall == 1)
+                tx_x_mirror1 = tx_x;
+                tx_y_mirror1 = - tx_y;
+                tx_x_mirror2 = tx_x_mirror1 - 40;
+                tx_y_mirror2 = tx_y_mirror1;
+                [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
+              
+                if(amount_of_intersec == 3 && intersections(2,1) == 0 && intersections(1, 2) == 0)
+                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections, tx_x_mirror1, tx_y_mirror1, 1);
+                    r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+
+                    theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                    theta1 = pi/2 - theta2;
+                    lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                    lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                    E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                    Voc = Voc + E_refl*effective_h;
+                end
+            end
+
+            %bottom wall right wall
+            if(enable)
+        
+
+
+
+
+
+
+
+
+        end
+
 
 
     %check if wall is horizontal or vertical to get theta (same for 2
     %reflections?)
+
+
     
 
 
@@ -311,6 +531,8 @@ title('Received power as a 3D plot')
 %plot heatmap
 figure
 scatter(all_rx_xy(1, :), all_rx_xy(2, :), [], received_power_dBm, 'filled')
+hold on
+lines = line(x, y, 'Color', 'black');
 xlabel('width [m]')
 ylabel('height [m]')
 axis equal
