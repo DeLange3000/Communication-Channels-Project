@@ -1,4 +1,4 @@
-function [received_power, rice_factor, delay_spread] = receivedPowerCalc(Ra, c, permitivity, x, y, all_rx_xy, tx_x, tx_y, effective_h, beta, h_ue, h_bs, EIRP, Fc, no_LOS, enable_LOS, enable_ground_reflections, ...
+function [received_power, rice_factor, delay_spread, impulse_response] = receivedPowerCalc(Ra, c, permitivity, x, y, all_rx_xy, tx_x, tx_y, effective_h, beta, h_ue, h_bs, EIRP, Fc, no_LOS, enable_LOS, enable_ground_reflections, ...
 enable_diffraction, enable_one_reflection, enable_left_wall_reflection, enable_right_wall_reflection, enable_bottom_wall_reflection, eanble_rue_du_grand_hospice, enable_rue_du_rouleau, ...
 enable_rue_du_peuplier, enable_double_reflections, enable_left_and_right_wall, enable_left_and_bottom_wall, enable_left_and_streets, enable_right_and_left_wall, enable_right_and_bottom_wall, ... 
 enable_bottom_and_left_wall, enable_bottom_and_right_wall, enable_bottom_and_streets, enable_streets_and_streets)
@@ -7,6 +7,7 @@ enable_bottom_and_left_wall, enable_bottom_and_right_wall, enable_bottom_and_str
 received_power = zeros(size(all_rx_xy(1,:)));
 rice_factor = zeros(size(received_power));
 delay_spread = zeros(size(received_power));
+impulse_response = zeros(length(received_power), 2, 23);
 
 for i = 1:length(all_rx_xy(1,:))
     Voc = 0;
@@ -21,6 +22,7 @@ for i = 1:length(all_rx_xy(1,:))
             Voc = Voc + E_los*effective_h;
             a0 = abs(E_los*effective_h)^2;
             delays = [delays r_los/c];
+            impulse_response(i, :, 1) = [abs(E_los*effective_h), r_los/c];
         end
 
         %if LOS then also ground reflection
@@ -34,6 +36,7 @@ for i = 1:length(all_rx_xy(1,:))
             Voc = Voc + E_gr*effective_h_gr;
             an = an + abs(E_gr*effective_h_gr)^2;
             delays = [delays r_gr/c];
+            impulse_response(i, :, 2) = [abs(E_gr*effective_h_gr), r_gr/c];
         end
     else
         %diffraction!!
@@ -60,6 +63,7 @@ for i = 1:length(all_rx_xy(1,:))
             Voc = Voc + E_diff*effective_h;
             an = an + abs(E_diff*effective_h)^2;
             delays = [delays r_diff/c];
+            impulse_response(i, :, 23) = [abs(E_diff*effective_h), r_diff/c];
         end
     end
 
@@ -103,6 +107,7 @@ for i = 1:length(all_rx_xy(1,:))
                 Voc = Voc + E_refl*effective_h;
                 an = an + abs(E_refl*effective_h)^2;
                 delays = [delays r_refl/c];
+                impulse_response(i, :, 3) = [abs(E_refl*effective_h), r_refl/c];
             end
         end
     
@@ -131,6 +136,7 @@ for i = 1:length(all_rx_xy(1,:))
                 Voc = Voc + E_refl*effective_h;
                 an = an + abs(E_refl*effective_h)^2;
                 delays = [delays r_refl/c];
+                impulse_response(i, :, 4) = [abs(E_refl*effective_h), r_refl/c];
             end
         end
     
@@ -154,6 +160,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 5) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
         end
@@ -175,6 +182,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 6) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
         end
@@ -196,6 +204,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 7) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
         end
@@ -218,6 +227,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 8) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
         end
@@ -254,6 +264,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 9) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
 
@@ -278,6 +289,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
+                        impulse_response(i, :, 10) = [abs(E_refl*effective_h), r_refl/c];
                     end
                 end
             end
@@ -304,6 +316,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2; 
                         delays = [delays r_refl/c];
+                        impulse_response(i, :, 11) = [abs(E_refl*effective_h), r_refl/c];
                     end
                 end
 
@@ -327,6 +340,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
+                        impulse_response(i, :, 12) = [abs(E_refl*effective_h), r_refl/c];
                     end
                 end
 
@@ -350,6 +364,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
+                        impulse_response(i, :, 13) = [abs(E_refl*effective_h), r_refl/c];
                     end
                 end
             end
@@ -382,6 +397,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 14) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
                 
@@ -399,7 +415,7 @@ for i = 1:length(all_rx_xy(1,:))
                     [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
                     if(a <= 1 && isempty(intersections_mirror1(intersections_mirror1 == 10)))
                         r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
-                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta2 = atan(abs((tx_x_mirror2 - all_rx_xy(1,i)))/(tx_y_mirror2 - all_rx_xy(2,i)));
                         theta1 = pi/2 - theta2;
                         lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                         lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -407,6 +423,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
+                        impulse_response(i, :, 15) = [abs(E_refl*effective_h), r_refl/c];
                     end
                 end
             end
@@ -431,6 +448,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 16) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
 
@@ -465,6 +483,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
+                    impulse_response(i, :, 17) = [abs(E_refl*effective_h), r_refl/c];
                 end
             end
 
@@ -504,6 +523,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
+                        impulse_response(i, :, 18) = [abs(E_refl*effective_h), r_refl/c];
                     end
                 end
 
@@ -548,6 +568,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
+                        impulse_response(i, :, 19) = [abs(E_refl*effective_h), r_refl/c];
                     end
                 end
 
@@ -604,6 +625,7 @@ for i = 1:length(all_rx_xy(1,:))
                             Voc = Voc + E_refl*effective_h;
                             an = an + abs(E_refl*effective_h)^2;
                             delays = [delays r_refl/c];
+                            impulse_response(i, :, 20) = [abs(E_refl*effective_h), r_refl/c];
                         end
                      end
                 end
@@ -651,6 +673,7 @@ for i = 1:length(all_rx_xy(1,:))
                             Voc = Voc + E_refl*effective_h;
                             an = an + abs(E_refl*effective_h)^2;
                             delays = [delays r_refl/c];
+                            impulse_response(i, :, 21) = [abs(E_refl*effective_h), r_refl/c];
                         end
                      end
                 end
@@ -698,6 +721,7 @@ for i = 1:length(all_rx_xy(1,:))
                             Voc = Voc + E_refl*effective_h;
                             an = an + abs(E_refl*effective_h)^2;
                             delays = [delays r_refl/c];
+                            impulse_response(i, :, 22) = [abs(E_refl*effective_h), r_refl/c];
                         end
                      end
                 end

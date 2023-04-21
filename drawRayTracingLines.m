@@ -1,6 +1,6 @@
 function [] = drawRayTracingLines(x, y, all_rx_xy, tx_x, tx_y, no_LOS, ray_traced_position)
 %check if there is a LOS
-if(isempty(find(no_LOS([1 2],:) == ray_traced_position))) %true is there is LOS
+if(isempty(find(and(no_LOS(1,:) == ray_traced_position(1), no_LOS(1,:) == ray_traced_position(1))))) %true is there is LOS
 plot([tx_x ray_traced_position(1)], [tx_y ray_traced_position(2)], 'blue');
 
 else

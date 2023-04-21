@@ -42,8 +42,8 @@ permitivity = 4; %between 3-5
 c = 3e8; %m/s
 Ra = 73; %Ohm
 
-ray_traced_position = [42.5 ; 188.5];
-
+ray_traced_position = [19.5 ; 0.5];
+impulse_position = [19.5; 0.5]; %point where impulse response will be plotted
 
 
 %% draw image
@@ -79,8 +79,13 @@ plot(all_rx_xy(1, :), all_rx_xy(2, :), '.');
 %% check if wanted_ray_traced_position is valid
 
 
-if(isempty(all_rx_xy(all_rx_xy == ray_traced_position)))
+if(isempty(find(and(all_rx_xy(1,:) == ray_traced_position(1), all_rx_xy(2,:) == ray_traced_position(2)))))
     disp('Not a valid raytracing position')
+    return
+end
+if(isempty(find(and(all_rx_xy(1,:) == impulse_position(1), all_rx_xy(2,:) == impulse_position(2)))))
+    disp('Not a valid impulse response position')
+    return
 end
 
 %% step 2
@@ -121,7 +126,7 @@ received_power = zeros(size(all_rx_xy(1,:)));
 effective_h = -(c/Fc)/pi*cos(pi/2*cos(pi/2))/sin(pi/2)^2; %same for every spot except ground reflection
 %diffraction_points = [40, 280; 40, 190; 40, 80; 40, 10; 0, 10];
 beta = 2*pi*Fc/c;
-[received_power, rice_factor, delay_spread] = receivedPowerCalc(Ra, c, permitivity, x, y, all_rx_xy, tx_x, tx_y, effective_h, beta, h_ue, h_bs, EIRP, Fc, no_LOS, enable_LOS, enable_ground_reflections, ...
+[received_power, rice_factor, delay_spread, impulse_response] = receivedPowerCalc(Ra, c, permitivity, x, y, all_rx_xy, tx_x, tx_y, effective_h, beta, h_ue, h_bs, EIRP, Fc, no_LOS, enable_LOS, enable_ground_reflections, ...
 enable_diffraction, enable_one_reflection, enable_left_wall_reflection, enable_right_wall_reflection, enable_bottom_wall_reflection, eanble_rue_du_grand_hospice, enable_rue_du_rouleau, ...
 enable_rue_du_peuplier, enable_double_reflections, enable_left_and_right_wall, enable_left_and_bottom_wall, enable_left_and_streets, enable_right_and_left_wall, enable_right_and_bottom_wall, ...
 enable_bottom_and_left_wall, enable_bottom_and_right_wall, enable_bottom_and_streets, enable_streets_and_streets);
@@ -240,6 +245,26 @@ title('Ray tracing for one position')
 plot([tx_x ray_traced_position(1)], [tx_y ray_traced_position(2)] , '*')
 
 drawRayTracingLines(x, y, all_rx_xy, tx_x, tx_y, no_LOS, ray_traced_position);
+
+%% plot impulse response
+
+impulse_index = find(and(all_rx_xy(1, :) == impulse_position(1), all_rx_xy(2, :) == impulse_position(2)));
+
+single_impulse_response = nonzeros((impulse_response(impulse_index, :, :)));
+single_impulse_response = reshape(single_impulse_response, 2, length(single_impulse_response)/2);
+
+%fysical impulse response
+figure
+hold on
+stem(single_impulse_response(2, :), single_impulse_response(1, :))
+xlabel('delay [s]')
+ylabel('Amplitude [V]')
+title('Channel impulse response')
+
+
+
+
+
 
 
     

@@ -11,7 +11,7 @@ intersections = [];
 
 
 
-for j = 1:length(walls_x(1,:));
+for j = 1:length(walls_x(1,:))
     %turn walls into lines 
     if(walls_x(1,j) == walls_x(2,j)) %assumes there are only vertical and horizontal walls
         intersec_x = walls_x(1,j);
