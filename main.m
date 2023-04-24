@@ -41,9 +41,10 @@ d_basestation = 10; %m
 permitivity = 4; %between 3-5
 c = 3e8; %m/s
 Ra = 73; %Ohm
+time_resolution = 1/BW; %s
 
-ray_traced_position = [19.5 ; 0.5];
-impulse_position = [19.5; 0.5]; %point where impulse response will be plotted
+ray_traced_position = [15.5 ; 128.5];
+impulse_position = [15.5; 128.5]; %point where impulse response will be plotted
 
 
 %% draw image
@@ -244,7 +245,8 @@ ylabel('height [m]')
 title('Ray tracing for one position')
 plot([tx_x ray_traced_position(1)], [tx_y ray_traced_position(2)] , '*')
 
-drawRayTracingLines(x, y, all_rx_xy, tx_x, tx_y, no_LOS, ray_traced_position);
+ray_tracing_index = find(and(all_rx_xy(1, :) == ray_traced_position(1), all_rx_xy(2, :) == ray_traced_position(2)));
+drawRayTracingLines(x, y, all_rx_xy, tx_x, tx_y, no_LOS, ray_traced_position, impulse_response, ray_tracing_index);
 
 %% plot impulse response
 
@@ -256,10 +258,42 @@ single_impulse_response = reshape(single_impulse_response, 2, length(single_impu
 %fysical impulse response
 figure
 hold on
-stem(single_impulse_response(2, :), single_impulse_response(1, :))
+stem(single_impulse_response(2, :), abs(single_impulse_response(1, :)))
 xlabel('delay [s]')
 ylabel('Amplitude [V]')
 title('Channel impulse response')
+
+%tapped delay line (assume unccorrelated scattering)
+amount_of_taps = ceil(max(single_impulse_response(2,:))/time_resolution);
+taps = (1:amount_of_taps)*time_resolution;
+if(delay_spread(impulse_index) < time_resolution/10)
+    disp('narrowband')
+    figure
+    hold on
+    stem(taps(find(mean(single_impulse_response(2, :)) <= taps, 1, 'first')), abs(sum(single_impulse_response(1, :))))
+    xlabel('delay [s]')
+    ylabel('Amplitude [V]')
+    title('Channel impulse response narrow band (Tapped delay line)')
+else
+    disp('wideband')
+    taps_amplitude = zeros(size(taps));
+    for i = 1:length(single_impulse_response(1,:))
+        j = 1;
+        while(single_impulse_response(2,i) > taps(j))
+            j = j + 1;
+        end
+        taps_amplitude(j) = taps_amplitude(j) + single_impulse_response(1,i);
+    end
+
+    figure
+    hold on
+    stem(taps,abs(taps_amplitude))
+    xlabel('delay [s]')
+    ylabel('Amplitude [V]')
+    title('Channel impulse response wideband (Tapped delay line)')
+end
+
+
 
 
 

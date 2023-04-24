@@ -22,7 +22,7 @@ for i = 1:length(all_rx_xy(1,:))
             Voc = Voc + E_los*effective_h;
             a0 = abs(E_los*effective_h)^2;
             delays = [delays r_los/c];
-            impulse_response(i, :, 1) = [abs(E_los*effective_h), r_los/c];
+            impulse_response(i, :, 1) = [E_los*effective_h, r_los/c];
         end
 
         %if LOS then also ground reflection
@@ -36,7 +36,7 @@ for i = 1:length(all_rx_xy(1,:))
             Voc = Voc + E_gr*effective_h_gr;
             an = an + abs(E_gr*effective_h_gr)^2;
             delays = [delays r_gr/c];
-            impulse_response(i, :, 2) = [abs(E_gr*effective_h_gr), r_gr/c];
+            impulse_response(i, :, 2) = [E_gr*effective_h_gr, r_gr/c];
         end
     else
         %diffraction!!
@@ -63,7 +63,7 @@ for i = 1:length(all_rx_xy(1,:))
             Voc = Voc + E_diff*effective_h;
             an = an + abs(E_diff*effective_h)^2;
             delays = [delays r_diff/c];
-            impulse_response(i, :, 23) = [abs(E_diff*effective_h), r_diff/c];
+            impulse_response(i, :, 23) = [E_diff*effective_h, r_diff/c];
         end
     end
 
@@ -107,7 +107,7 @@ for i = 1:length(all_rx_xy(1,:))
                 Voc = Voc + E_refl*effective_h;
                 an = an + abs(E_refl*effective_h)^2;
                 delays = [delays r_refl/c];
-                impulse_response(i, :, 3) = [abs(E_refl*effective_h), r_refl/c];
+                impulse_response(i, :, 3) = [E_refl*effective_h, r_refl/c];
             end
         end
     
@@ -136,7 +136,7 @@ for i = 1:length(all_rx_xy(1,:))
                 Voc = Voc + E_refl*effective_h;
                 an = an + abs(E_refl*effective_h)^2;
                 delays = [delays r_refl/c];
-                impulse_response(i, :, 4) = [abs(E_refl*effective_h), r_refl/c];
+                impulse_response(i, :, 4) = [E_refl*effective_h, r_refl/c];
             end
         end
     
@@ -160,7 +160,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
-                    impulse_response(i, :, 5) = [abs(E_refl*effective_h), r_refl/c];
+                    impulse_response(i, :, 5) = [E_refl*effective_h, r_refl/c];
                 end
             end
         end
@@ -182,7 +182,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
-                    impulse_response(i, :, 6) = [abs(E_refl*effective_h), r_refl/c];
+                    impulse_response(i, :, 6) = [E_refl*effective_h, r_refl/c];
                 end
             end
         end
@@ -195,7 +195,7 @@ for i = 1:length(all_rx_xy(1,:))
             if(amount_of_intersec == 2 && intersections(1,1) == 40 && intersections(2,2) == 180)
                 %determine if reflection can reach point (streets will
                 %otherwise receive signal while they cannot)
-                [a, b] = intersectionCalculator(x, y, intersections(:,2), tx_x, tx_y, 1);
+                [a, ~] = intersectionCalculator(x, y, intersections(:,2), tx_x, tx_y, 1);
                 if(a <= 1)
                     r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror)^2 + (all_rx_xy(2,i) - tx_y_mirror)^2);
                     theta = atan(abs(abs(tx_y_mirror) - abs(intersections(2)))/abs(tx_x_mirror - abs(intersections(1))));
@@ -204,7 +204,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
-                    impulse_response(i, :, 7) = [abs(E_refl*effective_h), r_refl/c];
+                    impulse_response(i, :, 7) = [E_refl*effective_h, r_refl/c];
                 end
             end
         end
@@ -227,7 +227,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
-                    impulse_response(i, :, 8) = [abs(E_refl*effective_h), r_refl/c];
+                    impulse_response(i, :, 8) = [E_refl*effective_h, r_refl/c];
                 end
             end
         end
@@ -256,7 +256,7 @@ for i = 1:length(all_rx_xy(1,:))
         
                 if(amount_of_intersec == 1)
                     r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
-                    theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                    theta2 = atan(abs(tx_y_mirror2 - all_rx_xy(2,i))/abs(tx_x_mirror2 - all_rx_xy(1,i)));
                     theta1 = theta2;
                     lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                     lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -264,7 +264,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
-                    impulse_response(i, :, 9) = [abs(E_refl*effective_h), r_refl/c];
+                    impulse_response(i, :, 9) = [E_refl*effective_h, r_refl/c];
                 end
             end
 
@@ -281,7 +281,7 @@ for i = 1:length(all_rx_xy(1,:))
                     [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
                     if(a <= 1 && isempty(intersections_mirror1(intersections_mirror1 == 10)))
                         r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
-                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                         theta1 = pi/2 - theta2;
                         lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                         lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -289,7 +289,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
-                        impulse_response(i, :, 10) = [abs(E_refl*effective_h), r_refl/c];
+                        impulse_response(i, :, 10) = [E_refl*effective_h, r_refl/c];
                     end
                 end
             end
@@ -308,7 +308,7 @@ for i = 1:length(all_rx_xy(1,:))
                     [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
                     if(a <= 1 && amount_of_intersec <= 2)
                         r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
-                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                         theta1 = pi/2 - theta2;
                         lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                         lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -316,7 +316,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2; 
                         delays = [delays r_refl/c];
-                        impulse_response(i, :, 11) = [abs(E_refl*effective_h), r_refl/c];
+                        impulse_response(i, :, 11) = [E_refl*effective_h, r_refl/c];
                     end
                 end
 
@@ -332,7 +332,7 @@ for i = 1:length(all_rx_xy(1,:))
                     [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
                     if(a <= 1 && amount_of_intersec <= 2)
                         r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
-                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                         theta1 = pi/2 - theta2;
                         lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                         lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -340,7 +340,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
-                        impulse_response(i, :, 12) = [abs(E_refl*effective_h), r_refl/c];
+                        impulse_response(i, :, 12) = [E_refl*effective_h, r_refl/c];
                     end
                 end
 
@@ -352,11 +352,11 @@ for i = 1:length(all_rx_xy(1,:))
                 [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
               
                 if(amount_of_intersec == 3 && intersections(1,2) == 40 && intersections(2,3) == 70)
-                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections(:,3), tx_x_mirror1, tx_y_mirror1, 1);
+                    [amount_of_intersec, ~] = intersectionCalculator(x, y, intersections(:,3), tx_x_mirror1, tx_y_mirror1, 1);
                     [a, b] = intersectionCalculator(x, y, intersections, tx_x, tx_y, 1);
                     if(a <= 1 && amount_of_intersec <= 2)
                         r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
-                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                         theta1 = pi/2 - theta2;
                         lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                         lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -364,7 +364,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
-                        impulse_response(i, :, 13) = [abs(E_refl*effective_h), r_refl/c];
+                        impulse_response(i, :, 13) = [E_refl*effective_h, r_refl/c];
                     end
                 end
             end
@@ -388,16 +388,28 @@ for i = 1:length(all_rx_xy(1,:))
                 end
         
                 if(amount_of_intersec == 1)
-                    r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
-                    theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
-                    theta1 = theta2;
-                    lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
-                    lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
-                    E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
-                    Voc = Voc + E_refl*effective_h;
-                    an = an + abs(E_refl*effective_h)^2;
-                    delays = [delays r_refl/c];
-                    impulse_response(i, :, 14) = [abs(E_refl*effective_h), r_refl/c];
+                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections, tx_x_mirror1, tx_y_mirror1, 1);
+                    j = 1;
+                    while j <= amount_of_intersec
+                        if(intersections_mirror1(1,j) ~= 40)
+                            intersections_mirror1(:,j) = [];
+                            amount_of_intersec = amount_of_intersec - 1;
+                        else
+                            j = j + 1;
+                        end
+                    end
+                    if(amount_of_intersec >= 1)
+                        r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
+                        theta2 = atan(abs(tx_y_mirror2 - all_rx_xy(2,i))/abs(tx_x_mirror2 - all_rx_xy(1,i)));
+                        theta1 = theta2;
+                        lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
+                        lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
+                        E_refl = lamba_ortho1*lamba_ortho2*sqrt(60*EIRP)/r_refl*exp(-1i*2*pi*Fc/c*r_refl);
+                        Voc = Voc + E_refl*effective_h;
+                        an = an + abs(E_refl*effective_h)^2;
+                        delays = [delays r_refl/c];
+                        impulse_response(i, :, 14) = [E_refl*effective_h, r_refl/c];
+                    end
                 end
             end
                 
@@ -423,7 +435,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
-                        impulse_response(i, :, 15) = [abs(E_refl*effective_h), r_refl/c];
+                        impulse_response(i, :, 15) = [E_refl*effective_h, r_refl/c];
                     end
                 end
             end
@@ -437,10 +449,10 @@ for i = 1:length(all_rx_xy(1,:))
                 [amount_of_intersec, intersections] = intersectionCalculator(x, y, all_rx_xy(:,i), tx_x_mirror2, tx_y_mirror2, 1);
               
                 if(amount_of_intersec == 3 && intersections(2,1) == 0 && intersections(1, 2) == 0)
-                    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections, tx_x_mirror1, tx_y_mirror1, 1);
+                    [~, intersections_mirror1] = intersectionCalculator(x, y, intersections, tx_x_mirror1, tx_y_mirror1, 1);
                     r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
 
-                    theta2 = atan((tx_y_mirror2 - intersections(2, 3))/(tx_x_mirror2 - intersections(1, 3)));
+                    theta2 = atan(abs(tx_y_mirror2 - all_rx_xy(2,i))/abs(tx_x_mirror2 - all_rx_xy(1,i)));
                     theta1 = pi/2 - theta2;
                     lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                     lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -448,7 +460,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
-                    impulse_response(i, :, 16) = [abs(E_refl*effective_h), r_refl/c];
+                    impulse_response(i, :, 16) = [E_refl*effective_h, r_refl/c];
                 end
             end
 
@@ -475,7 +487,7 @@ for i = 1:length(all_rx_xy(1,:))
                     %[amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections(:,2), tx_x_mirror1, tx_y_mirror1, 1);
                     r_refl = sqrt((all_rx_xy(1,i) - tx_x_mirror2)^2 + (all_rx_xy(2,i) - tx_y_mirror2)^2);
 
-                    theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                    theta2 = atan(abs(tx_y_mirror2 - all_rx_xy(2,i))/abs(tx_x_mirror2 - all_rx_xy(1,i)));
                     theta1 = pi/2 - theta2;
                     lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                     lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -483,7 +495,7 @@ for i = 1:length(all_rx_xy(1,:))
                     Voc = Voc + E_refl*effective_h;
                     an = an + abs(E_refl*effective_h)^2;
                     delays = [delays r_refl/c];
-                    impulse_response(i, :, 17) = [abs(E_refl*effective_h), r_refl/c];
+                    impulse_response(i, :, 17) = [E_refl*effective_h, r_refl/c];
                 end
             end
 
@@ -515,7 +527,7 @@ for i = 1:length(all_rx_xy(1,:))
                     [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections_mirror1, tx_x, tx_y, 1);
                     if(amount_of_intersec <= 1)
 
-                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                         theta1 = theta2;
                         lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                         lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -523,7 +535,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
-                        impulse_response(i, :, 18) = [abs(E_refl*effective_h), r_refl/c];
+                        impulse_response(i, :, 18) = [E_refl*effective_h, r_refl/c];
                     end
                 end
 
@@ -560,7 +572,7 @@ for i = 1:length(all_rx_xy(1,:))
                         end
                     end
                     if(amount_of_intersec == 0)
-                        theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                        theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                         theta1 = theta2;
                         lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                         lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -568,7 +580,7 @@ for i = 1:length(all_rx_xy(1,:))
                         Voc = Voc + E_refl*effective_h;
                         an = an + abs(E_refl*effective_h)^2;
                         delays = [delays r_refl/c];
-                        impulse_response(i, :, 19) = [abs(E_refl*effective_h), r_refl/c];
+                        impulse_response(i, :, 19) = [E_refl*effective_h, r_refl/c];
                     end
                 end
 
@@ -617,7 +629,7 @@ for i = 1:length(all_rx_xy(1,:))
                     if(amount_of_intersec == 1)
                         [amount_of_intersec, intersections_LOS] = intersectionCalculator(x, y, intersections_mirror1, tx_x, tx_y, 1);
                         if(amount_of_intersec <= 1)
-                            theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                            theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                             theta1 = theta2;
                             lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                             lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -625,7 +637,7 @@ for i = 1:length(all_rx_xy(1,:))
                             Voc = Voc + E_refl*effective_h;
                             an = an + abs(E_refl*effective_h)^2;
                             delays = [delays r_refl/c];
-                            impulse_response(i, :, 20) = [abs(E_refl*effective_h), r_refl/c];
+                            impulse_response(i, :, 20) = [E_refl*effective_h, r_refl/c];
                         end
                      end
                 end
@@ -665,7 +677,7 @@ for i = 1:length(all_rx_xy(1,:))
                     if(amount_of_intersec == 1)
                         [amount_of_intersec, intersections_LOS] = intersectionCalculator(x, y, intersections_mirror1, tx_x, tx_y, 1);
                         if(amount_of_intersec <= 1)
-                            theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                            theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                             theta1 = theta2;
                             lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                             lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -673,7 +685,7 @@ for i = 1:length(all_rx_xy(1,:))
                             Voc = Voc + E_refl*effective_h;
                             an = an + abs(E_refl*effective_h)^2;
                             delays = [delays r_refl/c];
-                            impulse_response(i, :, 21) = [abs(E_refl*effective_h), r_refl/c];
+                            impulse_response(i, :, 21) = [E_refl*effective_h, r_refl/c];
                         end
                      end
                 end
@@ -713,7 +725,7 @@ for i = 1:length(all_rx_xy(1,:))
                     if(amount_of_intersec == 1)
                         [amount_of_intersec, intersections_LOS] = intersectionCalculator(x, y, intersections_mirror1, tx_x, tx_y, 1);
                         if(amount_of_intersec <= 1)
-                            theta2 = atan((tx_y_mirror2 - intersections(2))/(tx_x_mirror2 - intersections(1)));
+                            theta2 = atan(abs(tx_x_mirror2 - all_rx_xy(1,i))/abs(tx_y_mirror2 - all_rx_xy(2,i)));
                             theta1 = theta2;
                             lamba_ortho1 = (cos(theta1) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2))/(cos(theta1) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta1)^2));
                             lamba_ortho2 = (cos(theta2) - sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2))/(cos(theta2) + sqrt(permitivity)*sqrt(1-1/permitivity*sin(theta2)^2));
@@ -721,7 +733,7 @@ for i = 1:length(all_rx_xy(1,:))
                             Voc = Voc + E_refl*effective_h;
                             an = an + abs(E_refl*effective_h)^2;
                             delays = [delays r_refl/c];
-                            impulse_response(i, :, 22) = [abs(E_refl*effective_h), r_refl/c];
+                            impulse_response(i, :, 22) = [E_refl*effective_h, r_refl/c];
                         end
                      end
                 end
