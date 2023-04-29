@@ -42,7 +42,6 @@ permitivity = 4; %between 3-5
 c = 3e8; %m/s
 Ra = 73; %Ohm
 time_resolution = 1/BW; %s
-bs_to_wall_x = log10(10.5:299.5);
 
 ray_traced_position = [15.5 ; 128.5];
 impulse_position = [15.5; 128.5]; %point where impulse response will be plotted
@@ -159,9 +158,8 @@ title('Received power as a heatmap')
 
 %plot BS to bottom wall
 line_index = find(and(all_rx_xy(1,:) == 20.5, all_rx_xy(2,:) <290)); %find elements on line between BS and bottom wall
-line_index = flip(line_index);
 figure
-plot(bs_to_wall_x, received_power_dBm(line_index))
+plot(log10(all_rx_xy(2,line_index) - 300), received_power_dBm(line_index))
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
 ylabel('Received power [dBm]')
@@ -186,7 +184,7 @@ title('SNR as a heatmap')
 
 %plot BS to bottom wall
 figure
-plot(bs_to_wall_x, SNR(line_index))
+plot(log10(all_rx_xy(2,line_index) - 300), SNR(line_index))
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
 ylabel('Signal to Noise Ratio [dB]')
@@ -209,7 +207,7 @@ title('Rice Factor as a heatmap')
 
 %plot BS to bottom wall
 figure
-plot(bs_to_wall_x, rice_factor_dBm(line_index))
+plot(log10(all_rx_xy(2,line_index) - 300), rice_factor_dBm(line_index))
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
 ylabel('Rice Factor [dBm]')
@@ -230,7 +228,7 @@ title('Delay Spread as a heatmap')
 
 %plot BS to bottom wall
 figure
-plot(bs_to_wall_x, delay_spread(line_index))
+plot(log10(all_rx_xy(2,line_index) - 300), delay_spread(line_index))
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
 ylabel('time [s]')
@@ -303,19 +301,19 @@ end
 %% Link budget
 
 % path loss L = Ptx/avg(Prx)
-b1 = bs_to_wall_x'\received_power_dBm(line_index)';
+b1 = log10(10.5:299.5)'\received_power_dBm(line_index)';
 
-b1 = b1;
-y_L = b1*(bs_to_wall_x');
+b1 = b1
+y_L = b1*(log10(10.5:299.5))
 
 figure
-plot(bs_to_wall_x, y_L)
+plot(log10(all_rx_xy(2,line_index) - 300), y_L)
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
 ylabel('Path Loss [dB]')
 title('Path Loss between basestation and bottom wall')
 hold on
-plot(bs_to_wall_x, received_power_dBm(line_index))
+plot(log10(all_rx_xy(2,line_index) - 300), received_power_dBm(line_index))
 
 
 % statistical fading characterization
