@@ -303,19 +303,15 @@ end
 %% Link budget
 
 % path loss L = Ptx/avg(Prx)
-b1 = bs_to_wall_x'\received_power_dBm(line_index)';
-
-b1 = b1;
-y_L = b1*(bs_to_wall_x');
 
 figure
-plot(bs_to_wall_x, y_L)
+plot(bs_to_wall_x, db(L, 'power'))
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
 ylabel('Path Loss [dB]')
 title('Path Loss between basestation and bottom wall')
 hold on
-plot(bs_to_wall_x, received_power_dBm(line_index))
+%plot(bs_to_wall_x, received_power_dBm(line_index))
 
 
 % statistical fading characterization
