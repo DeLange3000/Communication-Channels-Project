@@ -43,6 +43,8 @@ c = 3e8; %m/s
 Ra = 73; %Ohm
 time_resolution = 1/BW; %s
 bs_to_wall_x = log10(10.5:299.5);
+connection_probability = [0.99 0.90 0.80 0.60 0.50];
+P_rx_min = -102; %dBm
 
 ray_traced_position = [15.5 ; 128.5];
 impulse_position = [15.5; 128.5]; %point where impulse response will be plotted
@@ -302,21 +304,81 @@ end
 
 %% Link budget
 
-% path loss L = Ptx/avg(Prx)
+lin_rec_power = received_power(line_index);
+path_loss = received_power(line_index);
+avg_range = 2;
+
+for j = 1:20
+    for i = 1:length(line_index)
+        a = i - avg_range;
+        while(a <= 0)
+        a = a + 1;
+        end
+        while(a+2*avg_range >= length(path_loss))
+        a = a - 1;
+        end
+        path_loss(i) = mean(path_loss(a:a+2*avg_range));
+    end
+end
+
 
 figure
-plot(bs_to_wall_x, db(L, 'power'))
+plot(bs_to_wall_x, db(path_loss, 'power') + 30) %to get dB
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
 ylabel('Path Loss [dB]')
 title('Path Loss between basestation and bottom wall')
 hold on
-%plot(bs_to_wall_x, received_power_dBm(line_index))
+plot(bs_to_wall_x, received_power_dBm(line_index))
+legend('path loss', 'ray traced')
 
 
 % statistical fading characterization
 
+statistical_x = 40:-1:-40;
+statistical_y = zeros(size(statistical_x));
+for i = 1:length(lin_rec_power)
+    j = 1;
+    while db(path_loss(i), 'power') - db(lin_rec_power(i), 'power') < statistical_x(j)
+        j = j + 1;
+    end
+    statistical_y(j) = statistical_y(j) + 1;
+end
+
+figure
+plot(statistical_x, statistical_y)
+%set(gca, 'XDir','reverse')
+xlabel('difference of power between path loss and received signal [dB]')
+ylabel('amount of points with a certain deviation from the path loss')
+title('difference of path loss and received signal between basestation and bottom wall')
+hold on
+
+variance = var(db(path_loss, 'power') - db(lin_rec_power, 'power'));
+
+statistical_fading = db(path_loss, 'power');
+for i = 1:length(statistical_fading)
+    statistical_fading(i) = statistical_fading(i)+sqrt(variance)*randn;
+end
+
+figure
+plot(bs_to_wall_x, statistical_fading + 30) %to get dB
+%set(gca, 'XDir','reverse')
+xlabel('Distance from basestation [log(m)]')
+ylabel('statistical fading [dB]')
+title('statistical fading between basestation and bottom wall')
+hold on
+plot(bs_to_wall_x, received_power_dBm(line_index))
+legend('statistical', 'ray traced')
+
 % cell range as a function of the connection probability at the cell edge
+
+gammas = erfcinv(1 - connection_probability)*sqrt(variance)*sqrt(2); %dB
+L_max = -(P_rx_min) - gammas;
+
+
+
+
+
 
 
 
