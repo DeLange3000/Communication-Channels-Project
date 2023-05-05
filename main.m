@@ -264,7 +264,7 @@ figure
 hold on
 stem(single_impulse_response(2, :), abs(single_impulse_response(1, :)))
 xlabel('delay [s]')
-ylabel('Amplitude [V]')
+ylabel('Amplitude')
 title('Channel impulse response')
 
 %tapped delay line (assume unccorrelated scattering)
@@ -275,7 +275,7 @@ figure
 hold on
 stem(taps(find(mean(single_impulse_response(2, :)) <= taps, 1, 'first')), abs(sum(single_impulse_response(1, :))))
 xlabel('delay [s]')
-ylabel('Amplitude [V]')
+ylabel('Amplitude')
 title('Channel impulse response narrow band (Tapped delay line)')
 
 
@@ -297,7 +297,7 @@ for a = 1:length(time_resolutions)
     hold on
     stem(taps,abs(taps_amplitude))
     xlabel('delay [s]')
-    ylabel('Amplitude [V]')
+    ylabel('Amplitude ')
     title('Channel impulse response wideband (Tapped delay line) with time resolution', time_resolution)
 end
 
