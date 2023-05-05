@@ -346,7 +346,7 @@ for i = 1:length(lin_rec_power)
 end
 
 figure
-plot(statistical_x, statistical_y)
+stem(statistical_x, statistical_y)
 %set(gca, 'XDir','reverse')
 xlabel('difference of power between path loss and received signal [dB]')
 ylabel('amount of points with a certain deviation from the path loss')
