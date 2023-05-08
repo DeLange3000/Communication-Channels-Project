@@ -33,10 +33,10 @@ for i = 1:length(all_rx_xy(1,:))
             effective_h_gr = -(c/Fc)/pi*cos(pi/2*cos(theta))/sin(theta)^2;
             lamba_parallel = (cos(theta) - sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2))/(cos(theta) + sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2));
             E_gr = lamba_parallel*sqrt(60*EIRP)/r_gr*exp(-1i*2*pi*Fc/c*r_gr);
-            Voc = Voc + E_gr*effective_h_gr;
-            an = an + abs(E_gr*effective_h_gr)^2;
+            Voc = Voc + E_gr*effective_h_gr*sin(theta);
+            an = an + abs(E_gr*effective_h_gr*sin(theta))^2;
             delays = [delays r_gr/c];
-            impulse_response(i, :, 2) = [E_gr*effective_h_gr, r_gr/c];
+            impulse_response(i, :, 2) = [E_gr*effective_h_gr*sin(theta), r_gr/c];
         end
     else
         %diffraction!!

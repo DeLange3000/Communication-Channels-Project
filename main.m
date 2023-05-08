@@ -183,7 +183,7 @@ xlabel('width [m]')
 ylabel('height [m]')
 axis equal
 c = colorbar;
-c.Label.String = "Signal to Noise Ration [dB]";
+c.Label.String = "Signal to Noise Ratio [dB]";
 title('SNR as a heatmap')
 
 %plot BS to bottom wall
