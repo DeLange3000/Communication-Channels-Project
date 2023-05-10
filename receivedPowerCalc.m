@@ -748,7 +748,7 @@ for i = 1:length(all_rx_xy(1,:))
     rice_factor(i) = a0/an;
     impulse_response(i,1,:) = impulse_response(i,1,:)./(Ra*sqrt(2*received_power(i)/Ra));
 
-    if(length(delays) == 1)
+    if(length(delays) <= 1)
         delay_spread(i) = 0;
     else
         delay_spread(i) =  max(delays) - min(delays);

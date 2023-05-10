@@ -4,11 +4,11 @@ clc;
 
 %% enables
 
-enable_LOS = 1;
-enable_ground_reflections = 1;
-enable_diffraction = 1;
+enable_LOS = 0;
+enable_ground_reflections = 0;
+enable_diffraction = 0;
 
-enable_one_reflection = 1;
+enable_one_reflection = 0;
 enable_left_wall_reflection = 1;
 enable_right_wall_reflection = 1;
 enable_bottom_wall_reflection = 1;
@@ -17,14 +17,14 @@ enable_rue_du_rouleau = 1;
 enable_rue_du_peuplier = 1;
 
 enable_double_reflections = 1;
-enable_left_and_right_wall = 1;
-enable_left_and_bottom_wall = 1;
-enable_left_and_streets = 1;
-enable_right_and_left_wall = 1;
-enable_right_and_bottom_wall = 1;
-enable_bottom_and_left_wall = 1;
-enable_bottom_and_right_wall = 1;
-enable_bottom_and_streets = 1;
+enable_left_and_right_wall = 0;
+enable_left_and_bottom_wall = 0;
+enable_left_and_streets = 0;
+enable_right_and_left_wall = 0;
+enable_right_and_bottom_wall = 0;
+enable_bottom_and_left_wall = 0;
+enable_bottom_and_right_wall = 0;
+enable_bottom_and_streets = 0;
 enable_streets_and_streets = 1;
 
 
