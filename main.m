@@ -4,11 +4,11 @@ clc;
 
 %% enables
 
-enable_LOS = 0;
-enable_ground_reflections = 0;
-enable_diffraction = 0;
+enable_LOS = 1;
+enable_ground_reflections = 1;
+enable_diffraction = 1;
 
-enable_one_reflection = 0;
+enable_one_reflection = 1;
 enable_left_wall_reflection = 1;
 enable_right_wall_reflection = 1;
 enable_bottom_wall_reflection = 1;
@@ -17,14 +17,14 @@ enable_rue_du_rouleau = 1;
 enable_rue_du_peuplier = 1;
 
 enable_double_reflections = 1;
-enable_left_and_right_wall = 0;
-enable_left_and_bottom_wall = 0;
-enable_left_and_streets = 0;
-enable_right_and_left_wall = 0;
-enable_right_and_bottom_wall = 0;
-enable_bottom_and_left_wall = 0;
-enable_bottom_and_right_wall = 0;
-enable_bottom_and_streets = 0;
+enable_left_and_right_wall = 1;
+enable_left_and_bottom_wall = 1;
+enable_left_and_streets = 1;
+enable_right_and_left_wall = 1;
+enable_right_and_bottom_wall = 1;
+enable_bottom_and_left_wall = 1;
+enable_bottom_and_right_wall = 1;
+enable_bottom_and_streets = 1;
 enable_streets_and_streets = 1;
 
 
@@ -46,8 +46,8 @@ time_resolution = 1/BW; %s
 bs_to_wall_x = log10(10.5:299.5);
 connection_probability = [0.99 0.90 0.80 0.60 0.50];
 
-ray_traced_position = [15.5 ; 128.5];
-impulse_position = [15.5; 128.5]; %point where impulse response will be plotted
+ray_traced_position = [39.5 ; 275.5];
+impulse_position = [39.5; 275.5]; %point where impulse response will be plotted
 
 
 %% draw image
@@ -232,9 +232,9 @@ title('Delay Spread as a heatmap')
 
 %plot BS to bottom wall
 figure
-plot(bs_to_wall_x, delay_spread(line_index))
+plot(10.^(bs_to_wall_x), delay_spread(line_index))
 %set(gca, 'XDir','reverse')
-xlabel('Distance from basestation [log(m)]')
+xlabel('Distance from basestation [m]')
 ylabel('time [s]')
 title('Delay Spread between basestation and bottom wall')
 
@@ -265,21 +265,19 @@ hold on
 stem(single_impulse_response(2, :), abs(single_impulse_response(1, :)))
 xlabel('delay [s]')
 ylabel('Amplitude')
-title('Channel impulse response')
+%title('Channel impulse response')
 
 %tapped delay line (assume unccorrelated scattering)
 % narrow band
 amount_of_taps = ceil(max(single_impulse_response(2,:))/time_resolution);  
 taps = (1:amount_of_taps)*time_resolution;
-figure
-hold on
-stem(taps(find(mean(single_impulse_response(2, :)) <= taps, 1, 'first')), abs(sum(single_impulse_response(1, :))))
+stem(taps(find(max(single_impulse_response(2, :)) <= taps, 1, 'first')), abs(sum(single_impulse_response(1, :))))
 xlabel('delay [s]')
 ylabel('Amplitude')
-title('Channel impulse response narrow band (Tapped delay line)')
+%title('Channel impulse response narrow band (Tapped delay line)')
 
-
-time_resolutions = time_resolution*[1 0.1 0.01 10 100];
+time_resolution = 1/BW;
+time_resolutions = time_resolution*[10 1 0.1 0.01];
 
 for a = 1:length(time_resolutions)
     time_resolution = time_resolutions(a);
@@ -293,13 +291,13 @@ for a = 1:length(time_resolutions)
         end
         taps_amplitude(j) = taps_amplitude(j) + single_impulse_response(1,i);
     end
-    figure
-    hold on
-    stem(taps,abs(taps_amplitude))
+    stem(taps(find((abs(taps_amplitude)) ~= 0)),nonzeros(abs(taps_amplitude)))
     xlabel('delay [s]')
     ylabel('Amplitude ')
-    title('Channel impulse response wideband (Tapped delay line) with time resolution', time_resolution)
+    %title('Channel impulse response wideband (Tapped delay line) with time resolution', time_resolution)
 end
+
+legend('Fysical channel', 'narrowband', 'bandwidth '+string(1/time_resolutions(1)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(2)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(2)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(3)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(4)/1000000)+'MHz')
 
 
 %% Link budget

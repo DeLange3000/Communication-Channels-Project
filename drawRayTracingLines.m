@@ -302,7 +302,7 @@ if(impulse_response(ray_tracing_index,1,17) ~= 0)
             j = j + 1;
         end
     end
-    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections(:,2), tx_x_mirror1, tx_y_mirror1, 1);
+    [amount_of_intersec, intersections_mirror1] = intersectionCalculator(x, y, intersections(:,1), tx_x_mirror1, tx_y_mirror1, 1);
     j = 1;
     while j <= amount_of_intersec
         if(intersections_mirror1(2,j) ~= 0)
