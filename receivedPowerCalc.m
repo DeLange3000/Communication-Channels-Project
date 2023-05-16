@@ -30,6 +30,7 @@ for i = 1:length(all_rx_xy(1,:))
             r_los = sqrt((all_rx_xy(1,i) - tx_x)^2 + (all_rx_xy(2,i) - tx_y)^2); %since same height
             r_gr = sqrt(r_los^2 + (2*h_bs)^2);
             theta = acos(h_bs/(r_gr/2));
+            G_gr = 16/(3*pi)*sin(theta)^3;
             effective_h_gr = -(c/Fc)/pi*cos(pi/2*cos(theta))/sin(theta)^2;
             lamba_parallel = (cos(theta) - sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2))/(cos(theta) + sqrt(1/permitivity)*sqrt(1-1/permitivity*sin(theta)^2));
             E_gr = lamba_parallel*sqrt(60*EIRP)/r_gr*exp(-1i*2*pi*Fc/c*r_gr);
@@ -746,7 +747,11 @@ for i = 1:length(all_rx_xy(1,:))
     % Voc and then Ra (see exercise slides 25 -> 19)
     received_power(i) = 1/(8*Ra)*abs(Voc)^2;
     rice_factor(i) = a0/an;
-    impulse_response(i,1,:) = impulse_response(i,1,:)./(Ra*sqrt(2*received_power(i)/Ra));
+    G = 16/(3*pi)*sin(pi/2)^3;
+
+    temp_impulse = impulse_response(i,1,2); %keep ground refl because G_gr is not equal to G
+    impulse_response(i,1,:) = sqrt(1/(8*Ra)).*impulse_response(i,1,:)./sqrt(EIRP/G);
+    impulse_response(i,1,2) = sqrt(1/(8*Ra)).*temp_impulse./sqrt(EIRP/G_gr);
 
     if(length(delays) <= 1)
         delay_spread(i) = 0;

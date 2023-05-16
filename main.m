@@ -46,8 +46,8 @@ time_resolution = 1/BW; %s
 bs_to_wall_x = log10(10.5:299.5);
 connection_probability = [0.99 0.90 0.80 0.60 0.50];
 
-ray_traced_position = [39.5 ; 275.5];
-impulse_position = [39.5; 275.5]; %point where impulse response will be plotted
+ray_traced_position = [39.5 ; 4.5];
+impulse_position = [39.5; 4.5]; %point where impulse response will be plotted
 
 
 %% draw image
