@@ -311,7 +311,7 @@ figure
 plot(bs_to_wall_x, path_loss)
 %set(gca, 'XDir','reverse')
 xlabel('Distance from basestation [log(m)]')
-ylabel('Path Loss [dB]')
+ylabel('Path Loss [dBm]')
 title('Path Loss between basestation and bottom wall')
 hold on
 plot(bs_to_wall_x, received_power_dBm(line_index))
@@ -363,6 +363,7 @@ legend('statistical', 'ray traced')
 %% cell range as a function of the connection probability at the cell edge
 
 receiver_sensitivy = thermal_noise_power + rx_noise_figure + rx_target_snr; %dBm
+connection_probability = 0.01:0.01:0.99;
 gammas = erfcinv(2*(1 - connection_probability))*sqrt(variance)*sqrt(2); %dB
 L_max = db(EIRP, 'power') + 0 - receiver_sensitivy - gammas; % is equal to -Prx since EIRP = 0;
 P_rx_max = -L_max + 30; %dBm (formula 3.79) -> Ptx = 0 + 30 dBm
@@ -370,6 +371,11 @@ P_rx_max = -L_max + 30; %dBm (formula 3.79) -> Ptx = 0 + 30 dBm
 d_max = ((P_rx_max - b_line(2))./b_line(1)); %log(meter)
 
 d_max = 10.^d_max; % meter
+
+figure
+plot(connection_probability*100, d_max)
+xlabel('connection probabilty [%]')
+ylabel('Cell range [m]')
 
 
 
