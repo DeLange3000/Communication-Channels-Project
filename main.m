@@ -46,8 +46,8 @@ time_resolution = 1/BW; %s
 bs_to_wall_x = log10(10.5:299.5);
 connection_probability = [0.99 0.90 0.80 0.60 0.50];
 
-ray_traced_position = [39.5 ; 4.5];
-impulse_position = [39.5; 4.5]; %point where impulse response will be plotted
+ray_traced_position = [39.5 ; 274.5]; %point where ray trace lines will be plotted
+impulse_position = [39.5; 274.5]; %point where impulse response will be plotted
 
 
 %% draw image
@@ -297,7 +297,7 @@ for a = 1:length(time_resolutions)
     %title('Channel impulse response wideband (Tapped delay line) with time resolution', time_resolution)
 end
 
-legend('Fysical channel', 'narrowband', 'bandwidth '+string(1/time_resolutions(1)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(2)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(2)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(3)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(4)/1000000)+'MHz')
+legend('Fysical channel', 'narrowband', 'bandwidth '+string(1/time_resolutions(1)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(2)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(3)/1000000)+'MHz', 'bandwidth '+string(1/time_resolutions(4)/1000000)+'MHz')
 
 
 %% Link budget
@@ -373,9 +373,9 @@ d_max = ((P_rx_max - b_line(2))./b_line(1)); %log(meter)
 d_max = 10.^d_max; % meter
 
 figure
-plot(connection_probability*100, d_max)
-xlabel('connection probabilty [%]')
-ylabel('Cell range [m]')
+plot(d_max, connection_probability*100)
+ylabel('connection probabilty [%]')
+xlabel('Cell range [m]')
 
 
 
